@@ -1,5 +1,9 @@
 # Meson Rerun Failed Tests
 
+⚠️ **IMPORTANT NOTICE** ⚠️
+
+🔔 This tool is intended as a temporary solution until Meson implements native support for re-running failed tests. If/when Meson adds this functionality, this repository will be deprecated in favor of the official implementation, as that would provide a more integrated and maintainable solution. Please check Meson's documentation to see if this feature is now available before using this tool.
+
 A Python script that helps you find out faster if your "totally going to work this time" fix actually worked.
 
 ## Table of Contents

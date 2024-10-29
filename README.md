@@ -1,35 +1,39 @@
 # Meson Rerun Failed Tests
 
-⚠️ **IMPORTANT NOTICE** ⚠️
-
-🔔 This tool is intended as a temporary solution until Meson implements native support for re-running failed tests. If/when Meson adds this functionality, this repository will be deprecated in favor of the official implementation, as that would provide a more integrated and maintainable solution. Please check Meson's documentation to see if this feature is now available before using this tool.
-
-A Python script that helps you find out faster if your "totally going to work this time" fix actually worked.
-
-## Table of Contents
-
-- [Introduction](#introduction)
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Examples](#examples)
-- [Command-Line Options](#command-line-options)
-- [How It Works](#how-it-works)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Introduction
 
-Ever spent 10 minutes waiting for all tests to run, only to find out your fix didn't work? `meson-rerun-failed-tests.py` is here to help! It first runs just the previously failed tests, giving you quick feedback on whether your fix worked, before running the full test suite. Because let's face it - sometimes our first (or second... or third...) attempt at fixing a bug doesn't quite hit the mark.
+When developing, you frequently run tests. If a test is failing, your main concern is whether your fix will make that specific test pass. If it does, running all other tests becomes necessary to ensure you haven't introduced new issues. However, if the failing test continues to fail, running all other tests is somewhat pointless since you haven't yet resolved the problem you're working on.
 
-## Features
+Currently, when you run `meson test` and encounter a failed test, executing `meson test` again will start all tests from the beginning. Unfortunately, Meson doesn't have a `--rerun-failed` option yet, but hopefully it will be introduced in the future.
 
-- Immediately runs previously failed tests first - no more waiting through passing tests just to hit the failures
-- If the failing tests pass, automatically runs the full test suite to ensure no regressions
-- If they're still failing, tells you right away so you can get back to fixing them
-- Provides clear and informative console output with status indicators
-- Accepts all standard `meson test` arguments and options
+The proposed command:
+
+```bash
+# Won't work, since this option doesn't exist (yet)
+meson test --rerun-failed
+```
+
+would rerun only the tests that failed in the last run. This allows you to quickly check if your fix addresses the issue without waiting for all preceding tests to run. If the previously failed tests now pass, it could then proceed to run all other tests to ensure overall stability.
+
+If/when Meson adds this functionality, this repository will be deprecated in favor of the official implementation, as that would provide a more integrated and maintainable solution. 
+
+Until then, you can use a script to achieve similar functionality.
+
+## How it Works
+
+The script:
+
+1. **Analyzes Test Log**:
+   - Reads `./meson-logs/<logbase>.json` if it exists
+   - Extracts failed test names from JSONL entries
+
+2. **Executes Tests**:
+   - Without failed tests: runs full suite
+   - With failed tests: runs failed tests first
+     - If they pass: runs full suite
+     - If they fail: exits with error
+
+The script is designed to be a drop-in replacement for `meson test`, accepting all standard Meson test arguments while adding the failed-test-first optimization.
 
 ## Prerequisites
 
